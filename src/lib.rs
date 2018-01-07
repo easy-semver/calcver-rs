@@ -1,8 +1,15 @@
+#[macro_use(quick_error)]
+extern crate quick_error;
 extern crate git2;
-use git2::{Repository, Signature, Commit, ObjectType, Time, DiffOptions};
+extern crate handlebars;
 
-mod tpl;
+
+
+use git2::{Repository, Signature, Commit, ObjectType, Time, DiffOptions};
+use handlebars::{to_json, Handlebars, Helper, JsonRender, RenderContext, RenderError};
+
 mod semver;
+mod error;
 
 pub enum VersionBumpBehavior {
     Auto,
@@ -41,9 +48,11 @@ pub fn get_version(repo:  &ProjectRepo, bump_behavior: VersionBumpBehavior, rele
     String::from("1.0.0")
 }
 
-pub fn format_commit_message(repo:  &ProjectRepo, msg: &Message) -> bool {
+pub fn format_commit_message(repo:  &ProjectRepo, msg: &Message) -> Result<String,error::CalcverError> {
     // convert message to commit message using template
-    true
+    let mut handlebars = Handlebars::new();
+    handlebars.register_template_string("default",repo.commit_template.to_string())?;
+    Ok("".to_string())
 }
 
 

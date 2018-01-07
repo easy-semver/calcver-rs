@@ -5,3 +5,5 @@ authors = ["Jerahmeel Cosinas <me@jerahmeelcosinas.net>"]
 
 [dependencies]
 git2 = "0.6"
+handlebars = "0.29.0"
+quick-error = "^1.0.0"
