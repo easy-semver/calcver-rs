@@ -4,12 +4,4 @@ version = "0.1.0"
 authors = ["Jerahmeel Cosinas <me@jerahmeelcosinas.net>"]
 
 [dependencies]
-cmake = "0.1"
 git2 = "0.6"
-
-[dev-dependencies]
-docopt = "0.8"
-serde = "1.0"
-serde_derive = "1.0"
-time = "0.1"
-tempdir = "0.3"
