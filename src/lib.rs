@@ -7,8 +7,7 @@ extern crate serde_json;
 extern crate quick_error;
 extern crate git2;
 extern crate handlebars;
-
-
+extern crate regex;
 
 use git2::{Repository, Signature, Commit, ObjectType, Time, DiffOptions};
 use handlebars::{to_json, Handlebars, Helper, JsonRender, RenderContext, RenderError};
@@ -16,6 +15,8 @@ use handlebars::{to_json, Handlebars, Helper, JsonRender, RenderContext, RenderE
 mod semver;
 mod error;
 
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum VersionBumpBehavior {
     Auto,
     Major,
@@ -26,7 +27,11 @@ pub enum VersionBumpBehavior {
 pub struct ProjectRepo {
     pub path: String,
     pub commit_template: String,
-    pub tag_template: String
+    pub tag_template: String,
+    pub branch_template: String,
+    pub major_regex: String,
+    pub minor_regex: String,
+    pub patch_regex: String
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -59,7 +64,6 @@ pub fn format_commit_message(repo:  &ProjectRepo, msg: &Message) -> Result<Strin
     handlebars.register_template_string("default",repo.commit_template.to_string())?;
     Ok(handlebars.render("default",msg)?)
 }
-
 
 #[cfg(test)]
 mod tests {
