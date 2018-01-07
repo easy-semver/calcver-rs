@@ -74,6 +74,10 @@ mod tests {
             commit_template: String::from("{{message_type}}{{#if scope}}({{ scope }}){{/if}}: {{short_description}}\n\n{{description}}\n\n{{foot}}"),
             path: String::from(""),
             tag_template: String::from(""),
+            branch_template:String::from(""),
+            major_regex: String::from(""),
+            minor_regex: String::from(""),
+            patch_regex: String::from(""),
         }
     }
     fn get_message(hasScope: bool) -> Message {

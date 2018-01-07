@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fmt;
 use handlebars;
+use regex;
 
 
 quick_error! {
@@ -58,6 +59,12 @@ impl From<handlebars::TemplateError> for CalcverError {
 }
 impl From<handlebars::RenderError> for CalcverError {
      fn from(e: handlebars::RenderError) -> CalcverError {
+        CalcverError::with(e)
+    }
+}
+
+impl From<regex::Error> for CalcverError {
+     fn from(e: regex::Error) -> CalcverError {
         CalcverError::with(e)
     }
 }
