@@ -7,3 +7,6 @@ authors = ["Jerahmeel Cosinas <me@jerahmeelcosinas.net>"]
 git2 = "0.6"
 handlebars = "0.29.0"
 quick-error = "^1.0.0"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"

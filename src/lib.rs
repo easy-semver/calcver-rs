@@ -1,3 +1,8 @@
+
+#[macro_use]
+extern crate serde_derive;
+extern crate serde;
+extern crate serde_json;
 #[macro_use(quick_error)]
 extern crate quick_error;
 extern crate git2;
@@ -24,13 +29,13 @@ pub struct ProjectRepo {
     pub tag_template: String
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Message {
     message_type: String,
-    scope: String,
+    scope: Option<String>,
     short_description: String,
     description: String,
-    breaking_change: bool,
-    raw: String,
+    foot: String,
 }
 
 pub fn get_version(repo:  &ProjectRepo, bump_behavior: VersionBumpBehavior, release: bool) -> String {
@@ -52,14 +57,49 @@ pub fn format_commit_message(repo:  &ProjectRepo, msg: &Message) -> Result<Strin
     // convert message to commit message using template
     let mut handlebars = Handlebars::new();
     handlebars.register_template_string("default",repo.commit_template.to_string())?;
-    Ok("".to_string())
+    Ok(handlebars.render("default",msg)?)
 }
 
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
+    fn get_project() -> ProjectRepo {
+        ProjectRepo {
+            commit_template: String::from("{{message_type}}{{#if scope}}({{ scope }}){{/if}}: {{short_description}}\n\n{{description}}\n\n{{foot}}"),
+            path: String::from(""),
+            tag_template: String::from(""),
+        }
+    }
+    fn get_message(hasScope: bool) -> Message {
+        Message{
+            message_type: String::from("feat"),
+            scope: match hasScope {
+                true => Some(String::from("semver")),
+                _ => None
+            },
+            short_description: String::from("short"),
+            description: String::from("long"),
+            foot:String::from( "BREAKING CHANGE"),
+        }
+    }
+
     #[test]
-    fn placeholder() {
-        assert!(true,"placeholder test");
+    fn format_commit_with_scope() {
+        let repo = get_project();
+        let msg = get_message(true);
+
+        let res = format_commit_message(&repo,&msg).unwrap();
+        assert_eq!("feat(semver): short\n\nlong\n\nBREAKING CHANGE",res);
+    }
+    
+    #[test]
+    fn format_commit_without_scope() {
+        let repo = get_project();
+        let msg = get_message(false);
+
+        let res = format_commit_message(&repo,&msg).unwrap();
+        assert_eq!("feat: short\n\nlong\n\nBREAKING CHANGE",res);
     }
 }

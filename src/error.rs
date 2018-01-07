@@ -56,3 +56,8 @@ impl From<handlebars::TemplateError> for CalcverError {
         CalcverError::with(e)
     }
 }
+impl From<handlebars::RenderError> for CalcverError {
+     fn from(e: handlebars::RenderError) -> CalcverError {
+        CalcverError::with(e)
+    }
+}
