@@ -3,6 +3,7 @@ use std::fmt;
 use handlebars;
 use regex;
 use semver;
+use git2;
 
 
 quick_error! {
@@ -15,6 +16,10 @@ quick_error! {
         Handlebars(c: String) {
             display("Handlebars error: {:?}", c)
             description("Handlebars error")
+        }
+        NoCommitsOnRelease {
+            display("Release cannot be true if there are no commits")
+            description("Release cannot be true if there are no commits")
         }
     }
 }
@@ -72,6 +77,12 @@ impl From<regex::Error> for CalcverError {
 
 impl From<semver::SemVerError> for CalcverError {
      fn from(e: semver::SemVerError) -> CalcverError {
+        CalcverError::with(e)
+    }
+}
+
+impl From<git2::Error> for CalcverError {
+     fn from(e: git2::Error) -> CalcverError {
         CalcverError::with(e)
     }
 }
