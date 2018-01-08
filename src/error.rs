@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fmt;
 use handlebars;
 use regex;
+use semver;
 
 
 quick_error! {
@@ -65,6 +66,12 @@ impl From<handlebars::RenderError> for CalcverError {
 
 impl From<regex::Error> for CalcverError {
      fn from(e: regex::Error) -> CalcverError {
+        CalcverError::with(e)
+    }
+}
+
+impl From<semver::SemVerError> for CalcverError {
+     fn from(e: semver::SemVerError) -> CalcverError {
         CalcverError::with(e)
     }
 }

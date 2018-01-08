@@ -8,12 +8,13 @@ extern crate quick_error;
 extern crate git2;
 extern crate handlebars;
 extern crate regex;
+extern crate semver;
 
 use git2::{Repository, Signature, Commit, ObjectType, Time, DiffOptions};
 use handlebars::Handlebars;
 
 pub mod project;
-mod semver;
+mod version;
 mod error;
 
 
