@@ -99,7 +99,7 @@ mod tests {
             },
             short_description: String::from("short"),
             description: String::from("long"),
-            foot:String::from( "BREAKING CHANGE: "),
+            foot:String::from( "BREAKING CHANGE: ")
         }
     }
 
