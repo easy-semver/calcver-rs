@@ -1,7 +1,18 @@
 [package]
 name = "calcver"
 version = "0.1.0"
-authors = ["Jerahmeel Cosinas <me@jerahmeelcosinas.net>"]
+authors = ["Jerahmeel Cosinas <me@jerahmeelcosinas.net>","Joelle Ortiz <contact@joelleortiz.me>"]
+description = "auto calculation of version based on http://conventionalcommits.org"
+documentation = "https://github.com/easy-semver/calcver-rs"
+repository = "https://github.com/easy-semver/calcver-rs"
+readme = "readme.md"
+keywords = ["semver", "conventional-commits","lib"]
+license = "Apache-2.0"
+
+[badges]
+travis-ci = { repository = "easy-semver/calcver-rs" }
+codecov = { repository = "easy-semver/calcver-rs" }
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 git2 = "0.6"

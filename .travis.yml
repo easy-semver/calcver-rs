@@ -14,7 +14,19 @@ matrix:
 cache: cargo
 
 before_install:
+  - set -e
   - sudo apt-get update
+
+script:
+  - cargo login $CARGO_API_KEY
+  - cargo build
+  - cargo test
+
+deploy:
+  provider: script
+  script: cargo package && cargo publish
+  on:
+    branch: master
 
 addons:
   apt:
