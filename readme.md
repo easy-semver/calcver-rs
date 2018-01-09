@@ -1,7 +1,7 @@
 # Calcver 
 
-[![Travis branch](https://img.shields.io/travis/easy-semver/calcver-rs/master.svg)](https://travis-ci.org/easy-semver/calcver-rs/)
-[![Codecov branch](https://img.shields.io/codecov/c/github/easy-semver/calcver-rs/master.svg)](https://codecov.io/gh/easy-semver/calcver-rs/)
+[![Build Status](https://travis-ci.org/easy-semver/calcver-rs.svg?branch=master)](https://travis-ci.org/easy-semver/calcver-rs)
+[![codecov](https://codecov.io/gh/easy-semver/calcver-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/easy-semver/calcver-rs)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 :poop: *Work in progress*
