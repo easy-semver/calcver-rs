@@ -40,22 +40,22 @@ pub struct Message {
 }
 
 pub fn get_version(repo:  &project::Project, bump_behavior: VersionBumpBehavior, release: bool) -> Result<String,error::CalcverError> {
-    let r = Repository::open(&repo.path).unwrap();
+    let r = Repository::open(&repo.path)?;
     let tags = try!(r.tag_names(Some("*")));
     let tag_map: HashMap<_,_> = tags.iter().filter_map(|t| {
-        let name = t.unwrap();
-        let obj = r.revparse_single(name).unwrap();
-
-        if let Some(tag) = obj.as_tag() {
-            if let Ok(commit) = tag.peel() {
-                Some((commit.id(),String::from(name)))
-            } else {
-                None
-            }
-        }else if let Some(commit) = obj.as_commit() {
-            Some((commit.id(),String::from(name)))
-        } else {
-            None
+        match t {
+            Some(name) => {
+                if let Ok(obj) = r.revparse_single(name) {
+                    if let Some(tag) = obj.as_tag() {
+                        if let Ok(commit) = tag.peel() {
+                            Some((commit.id(),String::from(name)))
+                        } else {None}
+                    } else if let Some(commit) = obj.as_commit() {
+                        Some((commit.id(),String::from(name)))
+                    } else { None }
+                } else { None }
+            },
+            _ => None
         }
     }).collect();
     
@@ -65,12 +65,14 @@ pub fn get_version(repo:  &project::Project, bump_behavior: VersionBumpBehavior,
     try!(revwalk.push_head());
     
     for c in revwalk {
-        let commit =r.find_commit(c.unwrap()).unwrap();
+        let commit =r.find_commit(c?)?;
         if let Some(tg) = tag_map.get(&commit.id()) {
             tag = Some(tg);
             break;
         }
-        commits.push(commit.message().unwrap().to_string());
+        if let Some(msg) = commit.message() {
+            commits.push(msg.to_string());
+        }
     }
 
     version::get_next_version(&repo, bump_behavior, &commits, tag,release)
