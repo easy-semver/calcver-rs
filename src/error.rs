@@ -13,8 +13,8 @@ quick_error! {
             display("I dunno what the error is!!!")
             description("Unknown!")
         }
-        Handlebars(c: String) {
-            display("Handlebars error: {:?}", c)
+        Library(c: String) {
+            display("Library error: {:?}", c)
             description("Handlebars error")
         }
         NoCommitsOnRelease {
@@ -41,7 +41,7 @@ impl CalcverError {
         where
         E: Error + 'static,
     {
-        CalcverError::of(CalcverErrorReason::Handlebars(cause.description().to_string()))
+        CalcverError::of(CalcverErrorReason::Library(cause.description().to_string()))
     }
 }
 
