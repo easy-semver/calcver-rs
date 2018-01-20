@@ -87,135 +87,135 @@ mod tests {
 
     #[test]
     fn no_bump_if_no_commits(){
-        let tae = vec![];
+        let commits_since_last_tag = vec![];
         let config =  get_config();
 
-        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),false).unwrap());
+        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn error_if_release_but_no_commits_and_no_tag(){
-        let tae = vec![];
+        let commits_since_last_tag = vec![];
         let config =  get_config();
 
-        assert!(get_next_version(&config,VersionBumpBehavior::Auto, &tae, None ,true).is_err());
+        assert!(get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, None ,true).is_err());
     }
     #[test]
     fn return_last_tag_if_no_commits(){
-        let tae = vec![];
+        let commits_since_last_tag = vec![];
         let config =  get_config();
 
-        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3") ,true).unwrap());
+        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3") ,true).unwrap());
     }
     #[test]
     fn bump_major_auto(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "feat: messsage\n\ndesc\n\nBREAKING CHANGE: some breaking change".to_string(), 
             "fix: message".to_string(), 
             "feat: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("2.0.0", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),true).unwrap());
-        assert_eq!("2.0.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),false).unwrap());
+        assert_eq!("2.0.0", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
+        assert_eq!("2.0.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn bump_minor_auto(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "docs: messsage\n\ndesc\n\ncloses #5".to_string(),
             "fix: message".to_string(),
             "feat: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("1.3.0", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),true).unwrap());
-        assert_eq!("1.3.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),false).unwrap());
+        assert_eq!("1.3.0", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
+        assert_eq!("1.3.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn bump_patch_auto(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "docs: messsage\n\ndesc\n\ncloses #5".to_string(),
             "fix: message".to_string(),
             "fix: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),true).unwrap());
-        assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),false).unwrap());
+        assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
+        assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn no_bump(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "docs: messsage\n\ndesc\n\ncloses #5".to_string(),
             "fix: message".to_string(),
             "fix: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::None, &tae, Some("v1.2.3"),true).unwrap());
-        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::None, &tae, Some("v1.2.3"),false).unwrap());
+        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::None, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
+        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::None, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn bump_patch_if_there_are_commits_even_if_no_match(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "docs: messsage\n\ndesc\n\ncloses #5".to_string(),
             "test: message".to_string(),
             "test: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),true).unwrap());
-        assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),false).unwrap());
+        assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
+        assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn bump_manual_pre(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "feat: messsage\n\ndesc\n\nBREAKING CHANGE: some breaking change".to_string(), 
             "fix: message".to_string(),
             "feat: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("2.0.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Major, &tae, Some("v1.2.3"),false).unwrap());
-        assert_eq!("1.3.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Minor, &tae, Some("v1.2.3"),false).unwrap());
-        assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Patch, &tae, Some("v1.2.3"),false).unwrap());
+        assert_eq!("2.0.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Major, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
+        assert_eq!("1.3.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Minor, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
+        assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Patch, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn bump_manual_release(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "feat: messsage\n\ndesc\n\nBREAKING CHANGE: some breaking change".to_string(), 
             "fix: message".to_string(),
             "feat: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("2.0.0", get_next_version(&config,VersionBumpBehavior::Major, &tae, Some("v1.2.3"),true).unwrap());
-        assert_eq!("1.3.0", get_next_version(&config,VersionBumpBehavior::Minor, &tae, Some("v1.2.3"),true).unwrap());
-        assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Patch, &tae, Some("v1.2.3"),true).unwrap());
+        assert_eq!("2.0.0", get_next_version(&config,VersionBumpBehavior::Major, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
+        assert_eq!("1.3.0", get_next_version(&config,VersionBumpBehavior::Minor, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
+        assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Patch, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
     }
     #[test]
     fn empty_tag_is_0(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "feat: messsage\n\ndesc\n\nBREAKING CHANGE: some breaking change".to_string(),
             "fix: message".to_string(),
             "feat: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("0.1.0", get_next_version(&config,VersionBumpBehavior::Minor, &tae, None,true).unwrap());
-        assert_eq!("0.1.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Minor, &tae, None,false).unwrap());
+        assert_eq!("0.1.0", get_next_version(&config,VersionBumpBehavior::Minor, &commits_since_last_tag, None,true).unwrap());
+        assert_eq!("0.1.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Minor, &commits_since_last_tag, None,false).unwrap());
     }
     #[test]
     fn unmatched_tag_is_0(){
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "feat: messsage\n\ndesc\n\nBREAKING CHANGE: some breaking change".to_string(),
             "fix: message".to_string(),
             "feat: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("0.1.0", get_next_version(&config,VersionBumpBehavior::Minor, &tae, Some("feature-tag"),true).unwrap());
-        assert_eq!("0.1.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Minor, &tae, Some("feature-tag"),false).unwrap());
+        assert_eq!("0.1.0", get_next_version(&config,VersionBumpBehavior::Minor, &commits_since_last_tag, Some("feature-tag"),true).unwrap());
+        assert_eq!("0.1.0-alpha.3", get_next_version(&config,VersionBumpBehavior::Minor, &commits_since_last_tag, Some("feature-tag"),false).unwrap());
     }
     #[test]
     fn bump_removes_meta(){ // not sure if needed
-        let tae = vec![
+        let commits_since_last_tag = vec![
             "feat: messsage\n\ndesc\n\nBREAKING CHANGE: some breaking change".to_string(),
             "fix: message".to_string(),
             "feat: message\n\n".to_string()];
         let config =  get_config();
 
-        assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Patch, &tae, Some("1.2.3-beta.11+commitsha"),true).unwrap());
-        assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Patch, &tae, Some("1.2.3-beta.11+commitsha"),false).unwrap());
+        assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Patch, &commits_since_last_tag, Some("1.2.3-beta.11+commitsha"),true).unwrap());
+        assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Patch, &commits_since_last_tag, Some("1.2.3-beta.11+commitsha"),false).unwrap());
     }
 }
