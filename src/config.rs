@@ -1,10 +1,10 @@
 
-static COMMIT_TEMPLATE_DEFAULT: &'static str = "{{message_type}}{{#if scope}}({{ scope }}){{/if}}: {{short_description}}\n\n{{description}}\n\n{{foot}}";
-static TAG_REGEX_DEFAULT: &'static str = r"\d+\.\d+\.\d+";
-static MAJOR_REGEX_DEFAULT: &'static str = "BREAKING CHANGE:";
-static MINOR_REGEX_DEFAULT: &'static str = "^feat";
-static PATCH_REGEX_DEFAULT: &'static str = "^fix";
-static PRERELEASE_PREFIX_DEFAULT: &'static str = "alpha";
+pub static COMMIT_TEMPLATE_DEFAULT: &'static str = "{{message_type}}{{#if scope}}({{ scope }}){{/if}}: {{short_description}}\n\n{{description}}\n\n{{foot}}";
+pub static TAG_REGEX_DEFAULT: &'static str = r"\d+\.\d+\.\d+";
+pub static MAJOR_REGEX_DEFAULT: &'static str = "BREAKING CHANGE:";
+pub static MINOR_REGEX_DEFAULT: &'static str = "^feat";
+pub static PATCH_REGEX_DEFAULT: &'static str = "^fix";
+pub static PRERELEASE_PREFIX_DEFAULT: &'static str = "alpha";
 
 
 pub struct ProjectConfig {

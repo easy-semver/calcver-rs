@@ -68,4 +68,31 @@ mod tests {
         let config =  config::ProjectConfig::from_defaults();
         assert_eq!("1.2.3", get_version(&config,&repo,VersionBumpBehavior::Auto,true).unwrap())
     }
+
+    #[test]
+    fn error_if_no_info(){
+        let repo = DummyRepo { 
+            commits: vec![],
+            last_tag: None
+        };
+        let config =  config::ProjectConfig::from_defaults();
+        assert!(get_version(&config,&repo,VersionBumpBehavior::Auto,true).is_err())
+    }
+
+    #[test]
+    fn error_if_invalid_regex(){
+        let repo = DummyRepo { 
+            commits: vec!["feat: smoke test".to_string()],
+            last_tag: Some("v1.2.3".to_string())
+        };
+        let config =  config::ProjectConfig {
+            commit_template: String::from(config::COMMIT_TEMPLATE_DEFAULT),
+            prerelease_prefix: String::from(config::PRERELEASE_PREFIX_DEFAULT),
+            tag_regex: String::from(config::TAG_REGEX_DEFAULT),
+            major_regex: String::from(config::MAJOR_REGEX_DEFAULT),
+            minor_regex: String::from(config::MINOR_REGEX_DEFAULT),
+            patch_regex: String::from("invalidregex[\\t"),
+        };
+        assert!(get_version(&config,&repo,VersionBumpBehavior::Auto,true).is_err())
+    }
 }

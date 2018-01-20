@@ -15,25 +15,11 @@ pub fn get_next_version(config: &config::ProjectConfig, bump_behavior: VersionBu
         _=> bump_behavior
     };
     let current_version = get_current_version(&config,last_tag)?;
-    let next_version = bump_version(normalized_bump_behavior,&current_version);
-    match (release,next_version) {
-        (false,Ok(next_version))=> {
-            let mut retval = String::from(next_version);
-            if commits.len() > 0 {
-                retval.push_str("-");
-                retval.push_str(&config.prerelease_prefix);
-                retval.push_str(".");
-                retval.push_str(&commits.len().to_string());
-            }
-            Ok(retval)
-        },
-        (false,Err(e)) => Err(e),
-        (true,x) => x
-    }
+    bump_version(&config, normalized_bump_behavior, &current_version, release, commits.len())
 }
 
 
-fn bump_version(bump_behavior: VersionBumpBehavior, current_version: &str) -> Result<String,error::CalcverError> {
+fn bump_version(config: &config::ProjectConfig, bump_behavior: VersionBumpBehavior, current_version: &str, release: bool,num_commits: usize) -> Result<String,error::CalcverError> {
     // if version bump behavior
     let v = semver::Version::parse(&current_version)?;
     
@@ -42,9 +28,20 @@ fn bump_version(bump_behavior: VersionBumpBehavior, current_version: &str) -> Re
         VersionBumpBehavior::Minor=> semver::Version::new(v.major, v.minor + 1, 0),
         VersionBumpBehavior::Patch=> semver::Version::new(v.major, v.minor , v.patch + 1),
         VersionBumpBehavior::None => semver::Version::new(v.major, v.minor , v.patch),
-        _=> return Err(error::CalcverError::of(error::CalcverErrorReason::Unknown))
+        _ => panic!("unexpected bump behavior")
     };
-    Ok(output.to_string())
+    match (release,bump_behavior) {
+        (_,VersionBumpBehavior::None) => Ok(output.to_string()),
+        (true,_) => Ok(output.to_string()),
+        (false,_ ) => {
+            let mut retval = output.to_string();
+            retval.push_str("-");
+            retval.push_str(&config.prerelease_prefix);
+            retval.push_str(".");
+            retval.push_str(num_commits.to_string().as_ref());
+            Ok(retval)
+        }
+    }
 }
 
 fn get_bump_behavior(config: &config::ProjectConfig, commit_messages: &Vec<String> ) -> Result<VersionBumpBehavior,error::CalcverError> {  
@@ -141,6 +138,17 @@ mod tests {
 
         assert_eq!("1.2.4", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),true).unwrap());
         assert_eq!("1.2.4-alpha.3", get_next_version(&config,VersionBumpBehavior::Auto, &tae, Some("v1.2.3"),false).unwrap());
+    }
+    #[test]
+    fn no_bump(){
+        let tae = vec![
+            "docs: messsage\n\ndesc\n\ncloses #5".to_string(),
+            "fix: message".to_string(),
+            "fix: message\n\n".to_string()];
+        let config =  get_config();
+
+        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::None, &tae, Some("v1.2.3"),true).unwrap());
+        assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::None, &tae, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn bump_patch_if_there_are_commits_even_if_no_match(){

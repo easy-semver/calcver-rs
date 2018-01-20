@@ -9,12 +9,12 @@ stages:
 
 rust:
   - stable
-  - beta
-  - nightly
+#  - beta
+#  - nightly
 
-matrix:
-  allow_failures:
-    - rust: nightly
+#matrix:
+#  allow_failures:
+#    - rust: nightly
 
 before_install:
   - set -e
