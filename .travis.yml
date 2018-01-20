@@ -9,7 +9,7 @@ stages:
 
 rust:
   - stable
-  - beta
+#  - beta
   - nightly
 
 matrix:

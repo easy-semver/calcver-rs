@@ -1,23 +1,13 @@
 
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-extern crate serde_json;
 #[macro_use(quick_error)]
 extern crate quick_error;
-extern crate git2;
-extern crate handlebars;
 extern crate regex;
 extern crate semver;
 
-use git2::{Repository};
-use handlebars::Handlebars;
-use std::collections::HashMap;
-
-pub mod project;
+pub mod config;
 pub mod error;
+pub mod repository;
 mod version;
-
 
 
 #[derive(Debug)]
@@ -30,96 +20,79 @@ pub enum VersionBumpBehavior {
     Patch,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Message {
-    message_type: String,
-    scope: Option<String>,
-    short_description: String,
-    description: String,
-    foot: String,
-}
+pub fn get_version(config:  &config::ProjectConfig,repo: &repository::Repository,  bump_behavior: VersionBumpBehavior, release: bool) -> Result<String,error::CalcverError> {
+    let commits = repo.get_commits_since_last_tag();
+    let last_tag = repo.get_last_tag();
 
-pub fn get_version(repo:  &project::Project, bump_behavior: VersionBumpBehavior, release: bool) -> Result<String,error::CalcverError> {
-    let r = Repository::open(&repo.path)?;
-    let tags = try!(r.tag_names(Some("*")));
-    let tag_map: HashMap<_,_> = tags.iter().filter_map(|t| {
-        match t {
-            Some(name) => {
-                if let Ok(obj) = r.revparse_single(name) {
-                    if let Some(tag) = obj.as_tag() {
-                        if let Ok(commit) = tag.peel() {
-                            Some((commit.id(),String::from(name)))
-                        } else {None}
-                    } else if let Some(commit) = obj.as_commit() {
-                        Some((commit.id(),String::from(name)))
-                    } else { None }
-                } else { None }
-            },
-            _ => None
-        }
-    }).collect();
-    
-    let mut revwalk = r.revwalk()?;
-    let mut tag:Option<&str> = None;
-    let mut commits:Vec<String> = vec![];
-    try!(revwalk.push_head());
-    
-    for c in revwalk {
-        let commit =r.find_commit(c?)?;
-        if let Some(tg) = tag_map.get(&commit.id()) {
-            tag = Some(tg);
-            break;
-        }
-        if let Some(msg) = commit.message() {
-            commits.push(msg.to_string());
-        }
-    }
-
-    version::get_next_version(&repo, bump_behavior, &commits, tag,release)
-}
-
-pub fn format_commit_message(repo:  &project::Project, msg: &Message) -> Result<String,error::CalcverError> {
-    // convert message to commit message using template
-    let mut handlebars = Handlebars::new();
-    handlebars.register_template_string("default",repo.commit_template.to_string())?;
-    Ok(handlebars.render("default",msg)?)
+    version::get_next_version(&config, bump_behavior, &commits, last_tag,release)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn get_project() -> project::Project {
-        project::Project::from(".").finalize()
+    struct DummyRepo {
+        pub  commits: Vec<String>,
+        pub last_tag : Option<String>
     }
-    fn get_message(has_scope: bool) -> Message {
-        Message{
-            message_type: String::from("feat"),
-            scope: match has_scope {
-                true => Some(String::from("semver")),
-                _ => None
-            },
-            short_description: String::from("short"),
-            description: String::from("long"),
-            foot:String::from( "BREAKING CHANGE: ")
+    impl repository::Repository for DummyRepo {
+        fn get_last_tag(&self) -> Option<&str> {
+            match self.last_tag {
+                Some(ref tag) => Some(tag),
+                None=> None
+            }
+        }
+        fn get_commits_since_last_tag(&self) -> &Vec<String> {
+            &self.commits
         }
     }
 
     #[test]
-    fn format_commit_with_scope() {
-        let repo = get_project();
-        let msg = get_message(true);
+    fn smoke_test(){
+        let repo = DummyRepo { 
+            commits: vec!["feat: smoke test".to_string()],
+            last_tag: Some("v1.2.3".to_string())
+        };
+        let config =  config::ProjectConfig::from_defaults();
 
-        let res = format_commit_message(&repo,&msg).unwrap();
-        assert_eq!("feat(semver): short\n\nlong\n\nBREAKING CHANGE: ",res);
+        assert_eq!("1.3.0-alpha.1", get_version(&config,&repo,VersionBumpBehavior::Auto,false).unwrap());
+        assert_eq!("1.3.0", get_version(&config,&repo,VersionBumpBehavior::Auto,true).unwrap())
     }
-    
-    #[test]
-    fn format_commit_without_scope() {
-        let repo = get_project();
-        let msg = get_message(false);
 
-        let res = format_commit_message(&repo,&msg).unwrap();
-        assert_eq!("feat: short\n\nlong\n\nBREAKING CHANGE: ",res);
+    #[test]
+    fn smoke_test_release(){
+        let repo = DummyRepo { 
+            commits: vec![],
+            last_tag: Some("v1.2.3".to_string())
+        };
+        let config =  config::ProjectConfig::from_defaults();
+        assert_eq!("1.2.3", get_version(&config,&repo,VersionBumpBehavior::Auto,true).unwrap())
+    }
+
+    #[test]
+    fn error_if_no_info(){
+        let repo = DummyRepo { 
+            commits: vec![],
+            last_tag: None
+        };
+        let config =  config::ProjectConfig::from_defaults();
+        assert!(get_version(&config,&repo,VersionBumpBehavior::Auto,true).is_err())
+    }
+
+    #[test]
+    fn error_if_invalid_regex(){
+        let repo = DummyRepo { 
+            commits: vec!["feat: smoke test".to_string()],
+            last_tag: Some("v1.2.3".to_string())
+        };
+        let config =  config::ProjectConfig {
+            commit_template: String::from(config::COMMIT_TEMPLATE_DEFAULT),
+            prerelease_prefix: String::from(config::PRERELEASE_PREFIX_DEFAULT),
+            tag_regex: String::from(config::TAG_REGEX_DEFAULT),
+            major_regex: String::from(config::MAJOR_REGEX_DEFAULT),
+            minor_regex: String::from(config::MINOR_REGEX_DEFAULT),
+            patch_regex: String::from("invalidregex[\\t"),
+        };
+        assert!(get_version(&config,&repo,VersionBumpBehavior::Auto,true).is_err())
     }
 }

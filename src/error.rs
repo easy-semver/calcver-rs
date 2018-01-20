@@ -1,9 +1,7 @@
 use std::error::Error;
 use std::fmt;
-use handlebars;
 use regex;
 use semver;
-use git2;
 
 
 quick_error! {
@@ -57,18 +55,6 @@ impl fmt::Display for CalcverError {
     }
 }
 
-
-impl From<handlebars::TemplateError> for CalcverError {
-     fn from(e: handlebars::TemplateError) -> CalcverError {
-        CalcverError::with(e)
-    }
-}
-impl From<handlebars::RenderError> for CalcverError {
-     fn from(e: handlebars::RenderError) -> CalcverError {
-        CalcverError::with(e)
-    }
-}
-
 impl From<regex::Error> for CalcverError {
      fn from(e: regex::Error) -> CalcverError {
         CalcverError::with(e)
@@ -77,12 +63,6 @@ impl From<regex::Error> for CalcverError {
 
 impl From<semver::SemVerError> for CalcverError {
      fn from(e: semver::SemVerError) -> CalcverError {
-        CalcverError::with(e)
-    }
-}
-
-impl From<git2::Error> for CalcverError {
-     fn from(e: git2::Error) -> CalcverError {
         CalcverError::with(e)
     }
 }
