@@ -58,7 +58,7 @@ fn get_bump_behavior(config: &config::ProjectConfig, commit_messages: &Vec<Strin
             return Ok(VersionBumpBehavior::Major)
         } else if matches.matched(1) {
             bump_behavior = VersionBumpBehavior::Minor;
-        } else {
+        } else if bump_behavior == VersionBumpBehavior::None {
             bump_behavior = VersionBumpBehavior::Patch;
         }
     }
@@ -149,6 +149,18 @@ mod tests {
 
         assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::None, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
         assert_eq!("1.2.3", get_next_version(&config,VersionBumpBehavior::None, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
+    }
+    #[test]
+    fn bump_minor_auto_out_of_order(){
+        let commits_since_last_tag = vec![
+            "docs: messsage\n\ndesc\n\ncloses #5".to_string(),
+            "fix: message".to_string(),
+            "feat: message\n\n".to_string(),
+            "fix: message".to_string(),];
+        let config =  get_config();
+
+        assert_eq!("1.3.0", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),true).unwrap());
+        assert_eq!("1.3.0-alpha.4", get_next_version(&config,VersionBumpBehavior::Auto, &commits_since_last_tag, Some("v1.2.3"),false).unwrap());
     }
     #[test]
     fn bump_patch_if_there_are_commits_even_if_no_match(){
